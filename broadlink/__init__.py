@@ -210,16 +210,16 @@ class device:
         self.update_aes(key)
 
     def update_aes(self, key):
-        self.aes = Cipher(algorithms.AES(key), modes.CBC(self.iv),
+        self.aes = Cipher(algorithms.AES(bytes(key)), modes.CBC(bytes(self.iv)),
                           backend=default_backend())
 
     def encrypt(self, payload):
         encryptor = self.aes.encryptor()
-        return encryptor.update(payload) + encryptor.finalize()
+        return encryptor.update(bytes(payload)) + encryptor.finalize()
 
     def decrypt(self, payload):
         decryptor = self.aes.decryptor()
-        return decryptor.update(payload) + decryptor.finalize()
+        return decryptor.update(bytes(payload)) + decryptor.finalize()
 
     def auth(self):
         payload = bytearray(0x50)
@@ -727,7 +727,7 @@ class hysen(device):
 
         for i in range(0, 256):
             crc = c_ushort(i).value
-            for j in range(0, 8):
+            for _ in range(0, 8):
                 if (crc & 0x0001):
                     crc = c_ushort(crc >> 1).value ^ crc16_constant
                 else:
